@@ -1,0 +1,62 @@
+package sigil:host@1.3.0;
+
+/// One bounded semantic unary gRPC exchange. The operator owns routing,
+/// credentials and the closed application request policy; guest aliases and
+/// limits cannot widen that authority. Host infrastructure faults are sticky.
+interface grpc-unary {
+    record call {
+        profile: string,
+        rpc: string,
+        message: list<u8>,
+        timeout-millis: u64,
+        max-response-bytes: u64,
+    }
+
+    enum send-state {
+        not-sent,
+        headers-sent,
+        message-partial,
+        message-sent,
+    }
+
+    record metadata {
+        name: string,
+        value: list<u8>,
+    }
+
+    record response {
+        status: u32,
+        sent: send-state,
+        message: option<list<u8>>,
+        grpc-message: option<string>,
+        status-details-bin: option<list<u8>>,
+        initial-metadata: list<metadata>,
+        trailing-metadata: list<metadata>,
+    }
+
+    enum error-kind {
+        denied,
+        invalid-request,
+        unavailable,
+        timeout,
+        tls,
+        protocol,
+        io,
+        limit,
+        credential-denied,
+        cancelled,
+        internal,
+    }
+
+    record failure {
+        kind: error-kind,
+        sent: send-state,
+    }
+
+    exchange: func(request: call) -> result<response, failure>;
+}
+
+/// Bindgen-only world used by Sigil to implement the additive v1.3 interface.
+world imports {
+    import grpc-unary;
+}

@@ -1,0 +1,187 @@
+package sigil:temporal@0.1.0;
+
+/// Candidate application contract for the official wasm.temporal v0 plugin.
+/// This is deliberately non-shipping until the proposed host import passes
+/// every production RED and native CAPI acceptance gate.
+interface client {
+    record metadata-entry {
+        key: string,
+        value: list<u8>,
+    }
+
+    record payload {
+        metadata: list<metadata-entry>,
+        data: list<u8>,
+    }
+
+    record timestamp {
+        seconds: s64,
+        nanos: s32,
+    }
+
+    /// Protobuf enums retain their exact number. Label is present only when
+    /// the pinned descriptor knows that number.
+    record proto-enum {
+        number: s32,
+        label: option<string>,
+    }
+
+    enum mutation-effect {
+        not-applicable,
+        not-sent,
+        not-applied,
+        applied,
+        unknown,
+    }
+
+    enum server-class {
+        cancelled,
+        invalid,
+        deadline,
+        not-found,
+        conflict,
+        authorization,
+        exhausted,
+        failed-precondition,
+        aborted,
+        unsupported,
+        server,
+        unavailable,
+        authentication,
+        unknown,
+    }
+
+    record server-status {
+        code: u32,
+        class: server-class,
+        name: option<string>,
+        message: option<string>,
+        details: list<u8>,
+    }
+
+    enum error-kind {
+        invalid-request,
+        encoding,
+        protocol,
+        limit,
+        unsupported,
+        server-status,
+        infrastructure,
+    }
+
+    enum error-code {
+        invalid-field,
+        invalid-timeout,
+        invalid-payload-count,
+        duplicate-metadata-key,
+        malformed-response,
+        limit-exceeded,
+        unsupported-response,
+        non-completed,
+        server-status,
+        host-failure,
+    }
+
+    enum operation {
+        start-workflow-execution,
+        describe-workflow-execution,
+        get-workflow-execution-history,
+    }
+
+    record error {
+        kind: error-kind,
+        code: error-code,
+        operation: operation,
+        effect: mutation-effect,
+        server: option<server-status>,
+    }
+
+    record start-request {
+        profile: string,
+        /// The host rejects values unequal to the profile's frozen namespace.
+        namespace: string,
+        /// The host rejects values outside the profile's frozen ID prefix.
+        workflow-id: string,
+        workflow-type: string,
+        task-queue: string,
+        /// Exactly two ordered UTF-8 JSON payloads. Each request payload has
+        /// only encoding=json/plain metadata; response payloads may have more.
+        payloads: list<payload>,
+        request-id: string,
+        timeout-millis: u64,
+    }
+
+    record start-response {
+        run-id: string,
+        started: bool,
+        status: proto-enum,
+        effect: mutation-effect,
+    }
+
+    record describe-request {
+        profile: string,
+        /// The host rejects values unequal to the profile's frozen namespace.
+        namespace: string,
+        /// The host rejects values outside the profile's frozen ID prefix.
+        workflow-id: string,
+        timeout-millis: u64,
+    }
+
+    record describe-response {
+        run-id: string,
+        status: proto-enum,
+    }
+
+    enum history-filter {
+        close-event,
+        all-events,
+    }
+
+    record history-request {
+        profile: string,
+        /// The host rejects values unequal to the profile's frozen namespace.
+        namespace: string,
+        /// The host rejects values outside the profile's frozen ID prefix.
+        workflow-id: string,
+        wait-new-event: bool,
+        filter: history-filter,
+        skip-archival: bool,
+        next-page-token: list<u8>,
+        timeout-millis: u64,
+    }
+
+    record failure-node {
+        message: string,
+        source: option<string>,
+        activity-type: option<string>,
+    }
+
+    variant event-details {
+        workflow-completed(list<payload>),
+        workflow-failed(list<failure-node>),
+        activity-scheduled(string),
+        other,
+    }
+
+    record history-event {
+        event-id: s64,
+        event-time: timestamp,
+        task-id: s64,
+        event-type: proto-enum,
+        details: event-details,
+    }
+
+    record history-page {
+        events: list<history-event>,
+        next-page-token: list<u8>,
+    }
+
+    start-workflow-execution: func(request: start-request) -> result<start-response, error>;
+    describe-workflow-execution: func(request: describe-request) -> result<describe-response, error>;
+    get-workflow-execution-history: func(request: history-request) -> result<history-page, error>;
+}
+
+world plugin {
+    import sigil:host/grpc-unary@1.3.0;
+    export client;
+}

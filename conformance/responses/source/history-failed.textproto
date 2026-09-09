@@ -1,0 +1,27 @@
+history {
+  events {
+    event_id: 42
+    event_time { seconds: 1700000000 nanos: 999999999 }
+    task_id: 9007199254740993
+    event_type: EVENT_TYPE_WORKFLOW_EXECUTION_FAILED
+    workflow_execution_failed_event_attributes {
+      failure {
+        message: "synthetic activity failure"
+        source: "GoSDK"
+        activity_failure_info {
+          activity_type { name: "SyntheticActivity" }
+          activity_id: "activity-1"
+          scheduled_event_id: 9007199254740993
+          started_event_id: 9007199254740994
+          retry_state: RETRY_STATE_NON_RETRYABLE_FAILURE
+        }
+        cause {
+          message: "synthetic root cause"
+          source: "JavaSDK"
+          application_failure_info { type: "SyntheticFailure" non_retryable: true }
+        }
+      }
+      retry_state: RETRY_STATE_NON_RETRYABLE_FAILURE
+    }
+  }
+}

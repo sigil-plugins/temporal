@@ -1,4 +1,7 @@
 # maw admin tree (consolidated layout) — runtime/admin only
 /.maw/
+/target/
+/tools/codegen/target/
+/dist/
 /.manifold/
 /repo.git/

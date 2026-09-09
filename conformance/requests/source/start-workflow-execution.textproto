@@ -1,0 +1,33 @@
+namespace: "local-data-execution-gcp.hgzph"
+workflow_id: "capi-m5-00000000-x1"
+workflow_type {
+  name: "WorkflowForChildWorkflow"
+}
+task_queue {
+  name: "task-queue-for-child-workflow"
+  kind: TASK_QUEUE_KIND_NORMAL
+}
+input {
+  payloads {
+    metadata {
+      key: "encoding"
+      value: "json/plain"
+    }
+    data: "{\"eventFeedViewAssetID\":\"synthetic\"}"
+  }
+  payloads {
+    metadata {
+      key: "encoding"
+      value: "json/plain"
+    }
+    data: "{\"actionID\":\"synthetic\",\"resourceID\":\"synthetic\"}"
+  }
+}
+workflow_execution_timeout {}
+workflow_run_timeout {}
+workflow_task_timeout {
+  seconds: 10
+}
+identity: "sigil-temporal@0.1.0"
+request_id: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+header {}

@@ -1,0 +1,8 @@
+history {
+  events {
+    event_id: -9007199254740993
+    event_time { seconds: -62135596800 nanos: 999999999 }
+    task_id: -9223372036854775808
+    event_type: 31415
+  }
+}

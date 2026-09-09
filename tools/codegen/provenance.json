@@ -1,0 +1,19 @@
+{
+  "schema": "sigil.temporal.protobuf-generation.v1",
+  "scope": "local Linux x86_64 initial generation; not release provenance or CAPI acceptance",
+  "prost_build": "0.14.4",
+  "protoc_version": "libprotoc 35.1",
+  "protoc_binary_sha256": "7b672da064f65bc8c65a004efb3ccd2dae941a072aaddd55816f0e35cd7873db",
+  "codegen_binary_profile": "dev",
+  "codegen_binary_sha256": "ecfb505f7804d04f58fb92f3d8b822b9fb271333c5a22ce99e72cbd66411030f",
+  "codegen_cargo_lock_sha256": "adae0bc754ea6b2045ff05b2a4a6be5a32d03bf82c839691a046fc3bece0fc23",
+  "rustc": "rustc 1.95.0 (59807616e 2026-04-14)",
+  "cargo": "cargo 1.95.0 (f2d3ce0bd 2026-03-21)",
+  "rustfmt": "rustfmt 1.9.0-stable (59807616e1 2026-04-14)",
+  "upstream_descriptor_sha256": "66620dcab5c0a28d3b6ef677791c95162b4a8a28e6a52cd6a31f3459689699c2",
+  "message_descriptor_sha256": "e6d20317236a3c7666d251d37e251a47646a7f61058de6c0a07a3f77e89d917d",
+  "input_inventory": "vendor/SHA256SUMS",
+  "generated_inventory": "src/generated/SHA256SUMS",
+  "request_inventory": "conformance/requests/SHA256SUMS",
+  "response_inventory": "conformance/responses/SHA256SUMS"
+}

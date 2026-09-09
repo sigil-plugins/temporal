@@ -1,0 +1,27 @@
+{
+  "schema": "sigil.temporal.protobuf-source.v1",
+  "temporal_api": {
+    "repository": "https://github.com/temporalio/api.git",
+    "tag": "v1.63.5",
+    "commit": "3ebdff42a9f07ac484b415fe8ff0b483b4ce3340",
+    "tree": "59f2d60177929c6930c10e1d952067bdeb1c639d",
+    "root": "temporal/api/workflowservice/v1/service.proto",
+    "source_directory": "temporal-api",
+    "scope": "complete file import closure of the official WorkflowService definition; unchanged upstream source bytes"
+  },
+  "additional_import": {
+    "path": "temporal-api/google/protobuf/field_mask.proto",
+    "source": "https://raw.githubusercontent.com/protocolbuffers/protobuf/v35.1/src/google/protobuf/field_mask.proto",
+    "reason": "Temporal snapshot imports but does not vendor this file; never use an implicit system include"
+  },
+  "licenses": {
+    "TEMPORAL-MIT": "same pinned Temporal commit LICENSE",
+    "PROTOBUF-LICENSE": "https://raw.githubusercontent.com/protocolbuffers/protobuf/v35.1/LICENSE",
+    "GOOGLE-API-APACHE-2.0": "https://raw.githubusercontent.com/googleapis/googleapis/master/LICENSE",
+    "embedded_notices": "upstream proto copyright and license headers remain unchanged"
+  },
+  "hash_inventory": "SHA256SUMS",
+  "protoc_version": "libprotoc 35.1",
+  "prost_build_version": "0.14.4",
+  "normal_builds": "offline generated message source only; no build.rs, protoc, runtime descriptor loading or service generator"
+}

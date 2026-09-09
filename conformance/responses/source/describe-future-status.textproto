@@ -1,0 +1,7 @@
+workflow_execution_info {
+  execution {
+    workflow_id: "capi-m5-synthetic"
+    run_id: "11111111-2222-3333-4444-555555555555"
+  }
+  status: 31415
+}

@@ -1,0 +1,4 @@
+# Protobuf wire fixtures/descriptors are binary, even when Git's NUL heuristic
+# happens to classify a short message as text. Keep review output valid UTF-8.
+*.pb binary
+*.wasm binary

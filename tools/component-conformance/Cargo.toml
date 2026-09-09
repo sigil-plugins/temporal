@@ -1,0 +1,15 @@
+[package]
+name = "temporal-component-conformance"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+publish = false
+
+[workspace]
+
+[profile.dev]
+debug = 0
+
+[dependencies]
+anyhow = "=1.0.104"
+wasmtime = { version = "=48.0.0", default-features = false, features = ["anyhow", "component-model", "cranelift", "runtime", "std"] }

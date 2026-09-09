@@ -1,0 +1,6 @@
+namespace: "local-data-execution-gcp.hgzph"
+execution {
+  workflow_id: "capi-m5-00000000-r1"
+}
+next_page_token: "synthetic-page-token"
+history_event_filter_type: HISTORY_EVENT_FILTER_TYPE_ALL_EVENT

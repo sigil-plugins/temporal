@@ -1,0 +1,22 @@
+history {
+  events {
+    event_id: 9007199254740993
+    event_time { seconds: 1700000000 nanos: 123456789 }
+    task_id: 9223372036854775807
+    event_type: EVENT_TYPE_WORKFLOW_EXECUTION_COMPLETED
+    workflow_execution_completed_event_attributes {
+      result {
+        payloads {
+          metadata { key: "type" value: "SyntheticResult" }
+          metadata { key: "encoding" value: "json/plain" }
+          data: "{\"answer\":42}"
+        }
+        payloads {
+          metadata { key: "type" value: "\000\377\200" }
+          metadata { key: "encoding" value: "binary/plain" }
+          data: "\000\377\200\n\r\"\\"
+        }
+      }
+    }
+  }
+}

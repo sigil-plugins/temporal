@@ -1,0 +1,9 @@
+syntax = "proto3";
+package sigil.temporal.conformance;
+
+// A synthetic, otherwise unknown field, not a copy of an upstream field tag.
+// Protobuf concatenation appends its wire representation to a valid history
+// response to exercise unknown-field compatibility independently of prost.
+message FutureFields {
+  bytes future_value = 500000000;
+}

@@ -1,0 +1,11 @@
+workflow_execution_info {
+  execution {
+    workflow_id: "capi-m5-synthetic"
+    run_id: "11111111-2222-3333-4444-555555555555"
+  }
+  type { name: "WorkflowForChildWorkflow" }
+  status: WORKFLOW_EXECUTION_STATUS_COMPLETED
+  start_time { seconds: 1700000000 nanos: 123456789 }
+  close_time { seconds: 1700000001 nanos: 987654321 }
+  history_length: 9007199254740993
+}

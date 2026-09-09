@@ -1,0 +1,17 @@
+history {
+  events {
+    event_id: 11
+    event_time { seconds: 1700000000 nanos: 1 }
+    task_id: 21
+    event_type: EVENT_TYPE_ACTIVITY_TASK_SCHEDULED
+    activity_task_scheduled_event_attributes { activity_type { name: "FirstActivity" } }
+  }
+  events {
+    event_id: 12
+    event_time { seconds: 1700000000 nanos: 2 }
+    task_id: 22
+    event_type: EVENT_TYPE_ACTIVITY_TASK_SCHEDULED
+    activity_task_scheduled_event_attributes { activity_type { name: "SecondActivity" } }
+  }
+}
+next_page_token: "\000next\377"
