@@ -4,6 +4,7 @@ check:
     python3 scripts/check-contracts.py
     scripts/rebuild-protobuf.sh --verify
     lua tests/temporal_poll.lua examples/lib/temporal_poll.lua
+    lua tests/temporal.lua examples/lib/temporal.lua
     PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p 'test_pack*.py' -v
     PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p 'test_release*.py' -v
     cargo fmt --all -- --check
@@ -24,6 +25,10 @@ build:
 # Executes the actual component, using only an in-process host and public fixtures.
 component-check: build
     cargo run --manifest-path tools/component-conformance/Cargo.toml --locked --offline -- target/component/temporal.wasm
+
+# Existing normally locked/synced project required; no grants or acquisition here.
+companion-host-check sigil_binary project_dir:
+    python3 scripts/check-temporal-host.py --sigil {{quote(sigil_binary)}} --project {{quote(project_dir)}}
 
 # Explicit binary argument: the released 0.34.0 binary is NOT sufficient.
 local-pack sigil_binary output_dir: build

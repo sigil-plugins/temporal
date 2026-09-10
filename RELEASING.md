@@ -4,6 +4,38 @@ The authority is Sigil's P6 keyless provenance policy and its 2026-08-27
 autonomous-publication amendment. The lead owns repository controls, release
 dispatch and external acceptance; workers do not publish.
 
+## Unpublished 0.1.1 preparation
+
+The manifest and runtime crate now prepare **0.1.1**, not a published release.
+Only `0.1.1` and canonical positive `0.1.1-rc.N` package versions are admitted
+by this checkout's packer and publisher. Historical 0.1.0 releases are never
+rebuilt under their old identities. Confirm the new version is unused before
+publication; a local source version or earlier availability check is not proof.
+
+The candidate requires `sigil = ">=0.35.0"`, exact `host_api = "=1.3.0"`,
+schema 4 and the unchanged `sigil:host/grpc-unary@1.3.0` import. The removed
+minor ceiling does not prove compatibility with unmeasured future hosts. Keep
+the public minimum-host validator pinned and record any additional measured
+host versions separately. The WIT package, entrypoint and fixed Start identity
+remain 0.1.0. Rebuild and measure the component before claiming byte identity;
+a crate-version bump alone is not proof either way.
+
+The local development manifest/packer remains a separate, historical
+`0.1.0-dev.N` path. Its 0.34.0 source-build requirement is not the requirement
+for official 0.1.1 packages. No local package acquires publication authority.
+
+All following independent review, provenance, immutability and acquisition
+gates remain required. Preparing this source does not authorize dispatch.
+
+The 0.1.1 release packer also selects zstd `--single-thread` explicitly.
+Sigil's writer uses a single-threaded streaming encoder; the CLI's default
+one-worker mode can yield different compressed bytes for the same multi-block
+tar. Both forms can pass package validation, so validator acceptance is not
+proof of writer byte parity. The large-component regression compares the
+release packer with the pinned public Sigil writer, checks repeatability and
+refuses output reuse. Historical local-development packaging is unchanged.
+This correction changes new package identity, not existing published assets.
+
 ## Before the candidate build
 
 - Source and whole feature range independently reviewed, no open blockers.
@@ -66,15 +98,15 @@ CAPI acceptance uses ordinary `sigil run`, unchanged assertions and exact
 expected-RED fingerprints with pinned service/rig identities. No non-gating
 `plugin test` or local-source policy exception substitutes for that gate.
 
-After acceptance, stable 0.1.0 is a new independently reviewed candidate and
-publication. Promotion does not mutate the immutable prerelease or claim its
-package digest is unchanged when the manifest version changes.
+For any accepted RC, stable promotion is a new independently reviewed candidate
+and publication. Promotion does not mutate the immutable prerelease or claim
+its package digest is unchanged when the manifest version changes.
 
 The official locked 0.1.0-rc.1 received CAPI caller-replacement acceptance on
 2026-09-10 (five profiles, ten scenarios, 319 unchanged assertions, both exact
 expected-RED fingerprints). This closes the RC service-acceptance prerequisite,
-not the stable exact-candidate review or publication gate. Stable preparation
-must reproduce the accepted component BLAKE3
+not a new package's exact-candidate review or publication gate. Historical
+0.1.0 stable preparation required the accepted component BLAKE3
 `b25139ed2e6eeab88ed26f8e306621cd83869670084f986e481143b57acc372d`;
-retain the new package/manifest identities separately. The operator/caller
+retain each new package/manifest identity separately. The operator/caller
 requirements that enabled acceptance are documented in the README.

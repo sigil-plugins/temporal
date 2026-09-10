@@ -99,7 +99,7 @@ jobs:
           RELEASE_MANIFEST_SHA256: ${{ inputs.release_manifest_sha256 }}
         run: |
           set -euo pipefail
-          [[ "$VERSION" =~ ^0\.1\.0(-rc\.[1-9][0-9]*)?$ ]]
+          [[ "$VERSION" =~ ^0\.1\.1(-rc\.[1-9][0-9]*)?$ ]]
           [[ "$SOURCE_COMMIT" =~ ^[0-9a-f]{40}$ ]]
           [[ "$PACKAGE_SHA256" =~ ^[0-9a-f]{64}$ ]]
           [[ "$CHECKSUMS_SHA256" =~ ^[0-9a-f]{64}$ ]]

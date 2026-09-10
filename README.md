@@ -3,16 +3,26 @@
 The measured three-operation `wasm.temporal` component:
 start, describe and caller-paginated history.
 
-Version **0.1.0** requires stable **Sigil 0.35.x** and Host API
-1.3/schema 4. A version in this checkout is not evidence that its GitHub release
-exists. The official locked **0.1.0-rc.1** passed CAPI caller-replacement
+This checkout prepares **0.1.1 (unreleased)**, requiring **Sigil >=0.35.0**
+and exact Host API 1.3.0/schema 4. Published **0.1.0** still requires **Sigil
+0.35.x**; its immutable manifest is not changed by this preparation. A version
+in this checkout is not evidence that its GitHub release exists. The official
+locked **0.1.0-rc.1** passed CAPI caller-replacement
 acceptance on **2026-09-10**: five profiles, ten scenarios, 319 unchanged
-assertions and both exact expected-RED fingerprints. Stable promotion preserves
-the component bytes but creates a new manifest/package identity requiring its
-own reviewed publication and verification. Routing, authority, TLS policy,
+assertions and both exact expected-RED fingerprints. Its 0.1.0 stable promotion
+preserved the component bytes but created a new manifest/package identity
+requiring its own reviewed publication and verification. Routing, authority, TLS policy,
 credentials and transport limits belong
 to the operator-frozen Sigil host profile. The component receives none of them.
 It performs no retries, redirects, reconnections, sleeps or implicit pagination.
+
+The candidate's minimum-only evaluator range removes routine minor-version
+coupling, not host compatibility checks. Future stable versions must still
+support the exact schema and host interface. An admissible version range is
+not evidence that an unmeasured future host passed native or CAPI acceptance.
+Prerelease evaluators retain Sigil's checked last-stable compatibility rules;
+they do not impersonate their own final versions. Install examples below stay
+on published 0.1.0 until a new package is officially published and verified.
 
 The application WIT and machine contract are copied without semantic change from
 reviewed Sigil source `7403a479a36dc7a2fadf38c47578d64ba37ed679`.
@@ -170,7 +180,7 @@ supporting stable Sigil release, independent review or CAPI acceptance.
 ## Official candidate and publication workflow
 
 `plugin.toml` is the separate release manifest. The client WIT and measured
-request identity remain `0.1.0`; `0.1.0-rc.N` versions identify release candidates
+request identity remain `0.1.0`; `0.1.1-rc.N` versions identify release candidates
 without altering protobuf payloads or the interface contract.
 
 1. Configure the public repository's protected `main`, main-only `release`
@@ -220,8 +230,9 @@ without altering protobuf payloads or the interface contract.
    allowance or `plugin test` may substitute for the official lock and ordinary
    `sigil run` acceptance path.
 
-The published RC remains prerelease and is not latest. Only `0.1.0` and
-`0.1.0-rc.N` (positive canonical N) are admitted by this initial pipeline.
-After CAPI acceptance, stable promotion is a new reviewed version and candidate;
-it never mutates the immutable RC. See [RELEASING.md](RELEASING.md) for evidence
-and failure handling.
+The published 0.1.0 RC remains prerelease and is not latest. This checkout's
+pipeline admits only the new `0.1.1` and `0.1.1-rc.N` family (positive canonical
+N). It rejects the historical 0.1.0 family rather than preparing replacements.
+Any new publication requires its own reviewed source, candidate and package
+identity. It never mutates an immutable release. See [RELEASING.md](RELEASING.md)
+for evidence and failure handling.

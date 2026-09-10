@@ -1,7 +1,7 @@
 # Bounded Temporal Lua companion
 
-Status: proposed implementation contract for bn-31f0; requires lead approval
-before implementation. This document does not add an API to the released WASM.
+Status: lead-approved implementation contract for bn-31f0. This document does
+not add an API to the released WASM.
 
 ## Decision and scope
 
@@ -57,12 +57,17 @@ required fields, unknown fields, and out-of-range values produce
 `wait_after_start` uses its request's `["timeout-millis"]`; reject a supplied
 `describe_timeout_millis` option there instead of silently ignoring it.
 `run` creates the Describe request from the Start profile/namespace/workflow ID
-and the optional Describe timeout. It passes the Start request through exactly,
-including the caller's one request ID. Validate all helper options before Start.
+and the optional Describe timeout. It preserves all Start request values exactly,
+including the caller's one request ID. Before callbacks, snapshot the bounded
+request/option/selector tables, including the two Start payload metadata lists;
+immutable payload byte strings need no copy. This keeps Start and Describe on
+the same captured selector if a callback mutates the caller's original tables.
+Validate all helper options before Start.
 
 `checkpoint`, when supplied, is a zero-argument caller function. Normal return
 means continue; cancellation or an earlier caller-owned deadline is signalled
-by throwing. It must not perform RPCs or sleep. No `now`, wall-clock arithmetic,
+by throwing. It must not perform RPCs, sleep, or mutate requests/payloads or
+returned data. No `now`, wall-clock arithmetic,
 deadline timestamp, or fake cancellation primitive is supplied by the helper.
 
 Successful results:
@@ -162,7 +167,12 @@ counted events/bytes, and still consumes a page/RPC if requested.
 Accounting must walk only the known WIT page/event/variant/payload/metadata/
 failure-node shapes, never generic recursive traversal of arbitrary Lua data.
 Before traversing a table, reject any metatable (including protected ones).
-Use raw access, not metamethod-dispatched access or `pairs`/`ipairs` callbacks.
+Sigil's sandbox removes `rawget`/`rawset` (`src/runtime/sandbox.rs` in the host).
+Use ordinary indexing only after `getmetatable(value) ~= nil` has rejected
+every metatable, including a protected false value; indexing a plain table
+cannot dispatch a metamethod. Enumerate with `next`, never `pairs`/`ipairs`
+callbacks. This narrow host-compatibility clarification was lead-approved;
+it does not restore raw globals or weaken the sandbox.
 Records admit only their declared fields; lists must have only dense integer
 keys 1..N, with no holes, foreign keys, or indices beyond their explicit bound.
 Use an active-path identity set to reject cycles. Shared acyclic tables are
