@@ -143,6 +143,45 @@ fn request_bytes_match_independent_protoc_oracles_and_exchange_once() {
 }
 
 #[test]
+fn start_success_effect_does_not_prove_a_new_execution() {
+    for (bytes, started) in [
+        (
+            include_bytes!("../conformance/responses/start-omitted.pb").as_slice(),
+            false,
+        ),
+        (
+            include_bytes!("../conformance/responses/start-false.pb").as_slice(),
+            false,
+        ),
+        (
+            include_bytes!("../conformance/responses/start-wire-false.pb").as_slice(),
+            false,
+        ),
+        (START_SUCCESS, true),
+        (
+            include_bytes!("../conformance/responses/start-existing.pb").as_slice(),
+            false,
+        ),
+    ] {
+        let mut host = FakeHost::bytes(bytes);
+        let response = client::start_workflow_execution(&mut host, start_request())
+            .expect("well-formed gRPC success with a run ID");
+        assert_eq!(response.started, started);
+        assert_eq!(response.effect, api::MutationEffect::Applied);
+        assert_eq!(
+            host.calls.len(),
+            1,
+            "no replay to resolve an ambiguous boolean"
+        );
+        // This is the CAPI guard from findings #7. It never rejects any
+        // successful Start result, including the existing-execution fixture.
+        let capi_duplicate_guard =
+            !response.started && response.effect != api::MutationEffect::Applied;
+        assert!(!capi_duplicate_guard);
+    }
+}
+
+#[test]
 fn start_existing_and_future_status_are_not_reinterpreted() {
     for (bytes, started, number, known) in [
         (
