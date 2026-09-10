@@ -19,11 +19,12 @@ SPEC.loader.exec_module(release)
 class ReleaseContractTests(unittest.TestCase):
     def test_release_manifest_keeps_local_and_official_versions_separate(self):
         data = (ROOT / "plugin.toml").read_bytes()
-        self.assertEqual(release.validate_manifest(data)["version"], "0.1.0-rc.1")
-        release.validate_manifest(data.replace(b"0.1.0-rc.1", b"0.1.0"))
+        self.assertEqual(release.validate_manifest(data)["version"], "0.1.0")
+        version_line = b'version = "0.1.0"'
+        release.validate_manifest(data.replace(version_line, b'version = "0.1.0-rc.1"'))
         for version in (b"0.1.0-dev.1", b"0.1.0-rc.0", b"0.1.0-rc.01", b"0.1.0+build", b"0.2.0"):
             with self.subTest(version=version), self.assertRaises(ValueError):
-                release.validate_manifest(data.replace(b"0.1.0-rc.1", version))
+                release.validate_manifest(data.replace(version_line, b'version = "' + version + b'"'))
         with self.assertRaises(ValueError):
             release.validate_manifest((ROOT / "plugin.local.toml").read_bytes())
         with self.assertRaises(ValueError):

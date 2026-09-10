@@ -54,6 +54,10 @@ publication job or erase a draft/tag/attestation to reuse the identity.
 
 The public RC must be discoverable by exact version, installed from an empty
 cache with official-github-provenance-v1, then added to a project lock and synced.
+When the project already has a lock, sync it first to populate its existing
+dependencies before adding the intended version. Add resolves the whole lock;
+omit add if it already selects that version. Apply the same acquisition order
+when verifying the stable package, without substituting its RC package identity.
 Explicit install-first separates acquisition evidence for auditing and retains
 compatibility with older hosts; it is not a limitation of Sigil 0.35.0, whose
 `plugin add` can acquire a missing package through verified remote installation.
@@ -65,3 +69,12 @@ expected-RED fingerprints with pinned service/rig identities. No non-gating
 After acceptance, stable 0.1.0 is a new independently reviewed candidate and
 publication. Promotion does not mutate the immutable prerelease or claim its
 package digest is unchanged when the manifest version changes.
+
+The official locked 0.1.0-rc.1 received CAPI caller-replacement acceptance on
+2026-09-10 (five profiles, ten scenarios, 319 unchanged assertions, both exact
+expected-RED fingerprints). This closes the RC service-acceptance prerequisite,
+not the stable exact-candidate review or publication gate. Stable preparation
+must reproduce the accepted component BLAKE3
+`b25139ed2e6eeab88ed26f8e306621cd83869670084f986e481143b57acc372d`;
+retain the new package/manifest identities separately. The operator/caller
+requirements that enabled acceptance are documented in the README.
