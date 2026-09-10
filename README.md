@@ -1,12 +1,16 @@
 # Sigil Temporal plugin
 
-Release candidate for the measured three-operation `wasm.temporal` component:
+The measured three-operation `wasm.temporal` component:
 start, describe and caller-paginated history.
 
-The candidate is **0.1.0-rc.1**, requiring stable **Sigil 0.35.x** and Host API
+Version **0.1.0** requires stable **Sigil 0.35.x** and Host API
 1.3/schema 4. A version in this checkout is not evidence that its GitHub release
-exists. CAPI's real caller replacement acceptance remains open; an official RC
-enables that gate through normal project execution. Routing, authority, TLS policy, credentials and transport limits belong
+exists. The official locked **0.1.0-rc.1** passed CAPI caller-replacement
+acceptance on **2026-09-10**: five profiles, ten scenarios, 319 unchanged
+assertions and both exact expected-RED fingerprints. Stable promotion preserves
+the component bytes but creates a new manifest/package identity requiring its
+own reviewed publication and verification. Routing, authority, TLS policy,
+credentials and transport limits belong
 to the operator-frozen Sigil host profile. The component receives none of them.
 It performs no retries, redirects, reconnections, sleeps or implicit pagination.
 
@@ -48,6 +52,51 @@ compatibility, Sigil's scenario-level sticky-fault behavior, or CAPI acceptance.
 
 The optional project-side polling helper and its caller obligations are in
 [`examples/README.md`](examples/README.md). It is not an additional WIT export.
+
+## Operator and caller contract
+
+The Lua export names are `start-workflow-execution`,
+`describe-workflow-execution`, and `get-workflow-execution-history`. The host
+profile's RPC keys are a **different namespace**: the plugin sends exactly
+`start`, `describe`, and `history`. Within an existing profile named `example`,
+use these entries (this is a fragment, not a complete operator configuration):
+
+```toml
+[plugins.grants.temporal.grpc.example.rpcs]
+start = { path = "/temporal.api.workflowservice.v1.WorkflowService/StartWorkflowExecution", kind = "mutation" }
+describe = { path = "/temporal.api.workflowservice.v1.WorkflowService/DescribeWorkflowExecution", kind = "read" }
+history = { path = "/temporal.api.workflowservice.v1.WorkflowService/GetWorkflowExecutionHistory", kind = "read" }
+```
+
+The existing profile's `request_policy` must use
+`identity = "sigil-temporal@0.1.0"`. This is the plugin's fixed protobuf Start
+identity, including for RC packages, not an operator-chosen client name or the
+host-owned `client-version` metadata. Keep namespace, workflow-id prefix,
+workflow type and task queue confined to the intended caller. The scenario's
+`profile` must name that same configured profile.
+
+Keep the network endpoint referenced by the gRPC profile: it supplies the
+host-owned route, **not raw network authority for the guest**. Sigil 0.35.0 may
+warn that this network grant is irrelevant even though the gRPC route is
+retained. Do not remove the route or add raw `network`/`secrets` capability to
+silence that warning; those capabilities cannot coexist with semantic
+`grpc-unary`. Authorize only the official source for `grpc-unary`, without
+widening installation or third-party policy.
+
+History accepts exactly these request shapes; each call returns one page:
+
+| `filter` | `wait-new-event` | `skip-archival` | Maximum `timeout-millis` |
+| --- | --- | --- | --- |
+| `close-event` | `true` | `true` | 65000 |
+| `all-events` | `false` | `false` | 10000 |
+
+Start and Describe also cap `timeout-millis` at 10000. Timeouts must be positive;
+the host's operator, scenario and outer-call deadlines can shorten them further.
+A 10000 ms timeout is admissible for all operations, but is not a guarantee of
+that much execution time. Close-event history long-polls; reading a still-running
+workflow may reach the deadline. Follow nonempty page tokens explicitly, keep
+Start single-shot with one caller-owned request ID, and propagate infrastructure
+errors rather than converting them into expected product failures.
 
 ## Local packaging (non-gating)
 
@@ -135,13 +184,21 @@ without altering protobuf payloads or the interface contract.
    does not rebuild. It verifies a draft readback, emits keyless GitHub OIDC
    provenance and checks the immutable public release and its asset hashes.
    Existing versions are burned rather than overwritten or republished.
-5. Install the exact official RC from a fresh cache, then add and sync it:
+5. Acquire the exact published version and verify its official lock. For an
+   existing project lock with an empty cache, sync that lock **before** add:
 
    ```sh
-   sigil plugin install temporal@0.1.0-rc.1
-   sigil plugin add temporal@0.1.0-rc.1
+   sigil plugin sync
+   sigil plugin install temporal@0.1.0
+   sigil plugin add temporal@0.1.0
    sigil plugin sync
    ```
+
+   These commands require the stable release to exist. During RC acceptance,
+   use the exact approved RC version instead. Omit the first sync when there
+   is no existing lock; omit add when the lock already selects the intended
+   version. Add resolves the whole project lock, so first populate dependencies
+   already pinned there rather than assuming an empty cache contains them.
 
    Sigil 0.35.0's `add` grants project access and can acquire a missing package
    through the verified remote-install path. Explicit install-first is

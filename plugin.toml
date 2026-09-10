@@ -1,7 +1,7 @@
-# Official release candidate; CAPI acceptance remains a separate gate.
+# Stable release manifest; publication remains an independently reviewed gate.
 schema_version = 4
 name = "temporal"
-version = "0.1.0-rc.1"
+version = "0.1.0"
 description = "Bounded Temporal WorkflowService client"
 license = "MIT"
 
