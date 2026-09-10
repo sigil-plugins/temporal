@@ -1,10 +1,12 @@
 # Sigil Temporal plugin
 
-Local development of the measured three-operation `wasm.temporal` component:
+Release candidate for the measured three-operation `wasm.temporal` component:
 start, describe and caller-paginated history.
 
-This is not a published or accepted plugin. Host API 1.3/schema 4 support is
-required. Routing, authority, TLS policy, credentials and transport limits belong
+The candidate is **0.1.0-rc.1**, requiring stable **Sigil 0.35.x** and Host API
+1.3/schema 4. A version in this checkout is not evidence that its GitHub release
+exists. CAPI's real caller replacement acceptance remains open; an official RC
+enables that gate through normal project execution. Routing, authority, TLS policy, credentials and transport limits belong
 to the operator-frozen Sigil host profile. The component receives none of them.
 It performs no retries, redirects, reconnections, sleeps or implicit pagination.
 
@@ -14,8 +16,9 @@ The host WIT must remain byte-identical to the canonical SDK contract.
 Independent protobuf fixtures use the pinned Temporal API and protoc 35.1,
 not the plugin encoder as their own oracle.
 
-Publication requires independent review, immutable provenance-bearing artifacts,
-an actually supporting stable Sigil release and real CAPI replacement acceptance.
+RC publication requires independent exact-candidate review, immutable
+provenance-bearing artifacts and an actually supporting stable Sigil release.
+Stable Temporal promotion additionally requires real CAPI replacement acceptance.
 Existing CAPI assertions, exact expected-RED fingerprints and non-Temporal pins
 must not change to obtain a pass.
 
@@ -48,7 +51,7 @@ The optional project-side polling helper and its caller obligations are in
 
 ## Local packaging (non-gating)
 
-`plugin.toml` is an explicit **local development manifest**, not release
+`plugin.local.toml` is an explicit **local development manifest**, not release
 metadata. Its `=0.34.0` Sigil requirement matches the current source binary's
 version string; **published stable Sigil 0.34.0 does not support Host API 1.3**.
 Use a reviewed source build from Sigil
@@ -97,7 +100,50 @@ component source origin; package hashes identify the exact checked bytes.
 No `release-manifest.json` or official attestation is made.
 The nominated repository source is not verified provenance.
 
-There is no release packaging command, installation, trust-policy widening or
-lock creation in this workflow. The local archive is **NON-GATING**: it cannot
+There is no installation, trust-policy widening or lock creation in this local
+workflow. The local archive is **NON-GATING**: it cannot
 authorize project execution or substitute for official provenance, a genuinely
 supporting stable Sigil release, independent review or CAPI acceptance.
+
+## Official candidate and publication workflow
+
+`plugin.toml` is the separate release manifest. The client WIT and measured
+request identity remain `0.1.0`; `0.1.0-rc.N` versions identify release candidates
+without altering protobuf payloads or the interface contract.
+
+1. Configure the public repository's protected `main`, main-only `release`
+   environment, immutable releases and owner enforcement. These are external
+   controls, not established by merely committing these workflow files.
+2. Release Sigil 0.35.0 with public Linux assets. Pin the archive SHA-256 in
+   `scripts/release-tools.json`; its explicit unfilled value fails closed.
+   Acquisition uses only that public version and hash, no private Sigil checkout,
+   token, floating latest installer or source-built version impersonation.
+3. Dispatch `prepare-release` once on the reviewed main commit. It installs
+   pinned build tools, fetches locked dependencies, runs checks and actual
+   component conformance, then validates the release package with Sigil 0.35.0.
+   The candidate artifact contains exactly the canonical archive, `SHA256SUMS`
+   and canonical `release-manifest.json`. That manifest alone is not provenance.
+4. An independent reviewer approves the exact source commit, **first-attempt**
+   successful candidate run, SemVer and all three asset SHA-256 values. The
+   release agent freshly reads immutable-release controls before dispatching
+   `publish-release` with that tuple. The workflow downloads those bytes; it
+   does not rebuild. It verifies a draft readback, emits keyless GitHub OIDC
+   provenance and checks the immutable public release and its asset hashes.
+   Existing versions are burned rather than overwritten or republished.
+5. Install the exact official RC from a fresh cache, then add and sync it:
+
+   ```sh
+   sigil plugin install temporal@0.1.0-rc.1
+   sigil plugin add temporal@0.1.0-rc.1
+   sigil plugin sync
+   ```
+
+   `add` grants project access; it does not acquire. No `local:path` source,
+   third-party allowance or `plugin test` may substitute for the official lock
+   and ordinary `sigil run` acceptance path.
+
+The published RC remains prerelease and is not latest. Only `0.1.0` and
+`0.1.0-rc.N` (positive canonical N) are admitted by this initial pipeline.
+After CAPI acceptance, stable promotion is a new reviewed version and candidate;
+it never mutates the immutable RC. See [RELEASING.md](RELEASING.md) for evidence
+and failure handling.

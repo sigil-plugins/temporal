@@ -5,6 +5,7 @@ check:
     scripts/rebuild-protobuf.sh --verify
     lua tests/temporal_poll.lua examples/lib/temporal_poll.lua
     PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p 'test_pack*.py' -v
+    PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p 'test_release*.py' -v
     cargo fmt --all -- --check
     cargo test --workspace --locked --offline
     cargo clippy --workspace --all-targets --locked --offline -- -D warnings
@@ -26,11 +27,18 @@ component-check: build
 
 # Explicit binary argument: the released 0.34.0 binary is NOT sufficient.
 local-pack sigil_binary output_dir: build
-    python3 scripts/pack.py plugin.toml {{quote(output_dir)}} --sigil {{quote(sigil_binary)}}
+    python3 scripts/pack.py plugin.local.toml {{quote(output_dir)}} --sigil {{quote(sigil_binary)}}
 
 # Full local qualification includes the real Sigil validator, not just Wasmtime.
 # Still NON-GATING: no official provenance or CAPI project-execution authority.
 qualify-local sigil_binary output_dir:
     SIGIL_SOURCE_BINARY={{quote(sigil_binary)}} just check
     just component-check
-    python3 scripts/pack.py plugin.toml {{quote(output_dir)}} --sigil {{quote(sigil_binary)}}
+    python3 scripts/pack.py plugin.local.toml {{quote(output_dir)}} --sigil {{quote(sigil_binary)}}
+
+# Candidate creation only. The independent exact-tuple approval and main-only
+# publication workflow are separate, and never rebuild the approved archive.
+release-dist source_commit sigil_binary:
+    SIGIL_RELEASE_BINARY={{quote(sigil_binary)}} just check
+    just component-check
+    python3 scripts/release-pack.py dist --sigil {{quote(sigil_binary)}} --source-commit {{quote(source_commit)}}
