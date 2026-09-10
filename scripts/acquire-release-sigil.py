@@ -2,31 +2,30 @@
 """Acquire only the checksum-pinned public supporting Sigil binary."""
 
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
-import re
 import subprocess
+import sys
 import tarfile
 import tempfile
 import urllib.request
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.dont_write_bytecode = True
+SPEC = importlib.util.spec_from_file_location("release_identity", Path(__file__).with_name("release-identity.py"))
+identity = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(identity)
+validate_spec = identity.validate_spec
 
 
-def validate_spec(spec):
-    if set(spec) != {"sigil_version", "sigil_archive", "sigil_archive_sha256"}:
-        raise ValueError("unexpected release-tool configuration")
-    if spec["sigil_version"] != "0.35.0" or spec["sigil_archive"] != "sigil-x86_64-unknown-linux-gnu.tar.xz":
-        raise ValueError("unexpected supporting host release")
-    digest = spec["sigil_archive_sha256"]
-    if re.fullmatch(r"[0-9a-f]{64}", digest) is None:
-        raise ValueError("supporting public Sigil archive digest has not been pinned")
-    return digest
+def run(*args):
+    return subprocess.check_output(args, text=True)
 
 
 def acquire(root):
     spec = json.loads((root / "scripts/release-tools.json").read_text())
-    digest = validate_spec(spec)
+    digest, binary_digest = validate_spec(spec)
     url = "https://github.com/bobisme/sigil-releases/releases/download/v0.35.0/" + spec["sigil_archive"]
     destination = root / "target/release-tools/sigil"
     with tempfile.TemporaryDirectory(prefix="temporal-sigil-") as temporary:
@@ -48,13 +47,15 @@ def acquire(root):
             binary = bundle.extractfile(entries[0]).read()
         staged_binary = Path(temporary) / "sigil"
         staged_binary.write_bytes(binary)
+        identity.check_digest(staged_binary, binary_digest)
         staged_binary.chmod(0o755)
-        if subprocess.check_output([str(staged_binary), "--version"], text=True).strip() != "sigil 0.35.0":
+        if identity.run_checked(staged_binary, binary_digest, run, "--version").strip() != "sigil 0.35.0":
             raise ValueError("wrong supporting host version")
         destination.parent.mkdir(parents=True, exist_ok=True)
         with destination.open("xb") as output:
             output.write(binary)
         destination.chmod(0o755)
+        identity.check_digest(destination, binary_digest)
     return {
         "binary_path": str(destination),
         "binary_sha256": hashlib.sha256(binary).hexdigest(),

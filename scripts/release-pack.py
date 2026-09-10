@@ -2,7 +2,6 @@
 """Create an unpublished P6 candidate; only the publication workflow attests it."""
 
 import argparse
-import hashlib
 import importlib.util
 import json
 import os
@@ -18,6 +17,9 @@ SPEC = importlib.util.spec_from_file_location("local_pack", Path(__file__).with_
 local = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(local)
 contracts = local.contracts
+IDENTITY_SPEC = importlib.util.spec_from_file_location("release_identity", Path(__file__).with_name("release-identity.py"))
+host_identity = importlib.util.module_from_spec(IDENTITY_SPEC)
+IDENTITY_SPEC.loader.exec_module(host_identity)
 
 
 def validate_manifest(data):
@@ -44,15 +46,14 @@ def pack(root, output, sigil, source_commit):
     if contracts.run("git", "-C", str(root), "status", "--porcelain", "--untracked-files=normal").strip():
         raise ValueError("release candidate requires a clean checkout")
     contracts.check_sources(root)
+    _, binary_sha = host_identity.load_spec(root)
     manifest_bytes = local.ordinary_bytes(root / "plugin.toml", local.MAX_MANIFEST)
     manifest = validate_manifest(manifest_bytes)
     if any((root / prefix).is_symlink() for prefix in ("target", "target/component")):
         raise ValueError("component directories must not be symlinks")
     component_bytes = local.ordinary_bytes(root / local.COMPONENT, local.MAX_COMPONENT)
     sigil = sigil.resolve(strict=True)
-    with sigil.open("rb") as binary:
-        binary_sha = hashlib.file_digest(binary, "sha256").hexdigest()
-    if contracts.run(str(sigil), "--version").strip() != "sigil 0.35.0":
+    if host_identity.run_checked(sigil, binary_sha, contracts.run, "--version").strip() != "sigil 0.35.0":
         raise ValueError("release checks require stable Sigil 0.35.0")
     zstd = os.environ.get("ZSTD", "zstd")
     if not re.search(r"\bv1\.5\.7\b", contracts.run(zstd, "--version")):
@@ -67,7 +68,7 @@ def pack(root, output, sigil, source_commit):
         (stage / local.COMPONENT).write_bytes(component_bytes)
         (stage / "plugin.toml").write_bytes(manifest_bytes)
         contracts.check_component(stage / local.COMPONENT, stage)
-        contracts.run(str(sigil), "plugin", "validate", str(stage / "plugin.toml"))
+        host_identity.run_checked(sigil, binary_sha, contracts.run, "plugin", "validate", str(stage / "plugin.toml"))
         tar = local.member("plugin.toml", manifest_bytes) + local.member(local.COMPONENT, component_bytes) + bytes(1024)
         result = subprocess.run([zstd, "-q", "-10", "--check", "-c"], input=tar,
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -78,7 +79,7 @@ def pack(root, output, sigil, source_commit):
             raise ValueError("compressed package limit exceeded")
         name = f"temporal-{manifest['version']}.sigil-plugin.tar.zst"
         (stage / name).write_bytes(archive)
-        contracts.run(str(sigil), "plugin", "validate", str(stage / name))
+        host_identity.run_checked(sigil, binary_sha, contracts.run, "plugin", "validate", str(stage / name))
         identity = {
             "schema_version": 1,
             "source": manifest["repository"]["source"],
@@ -89,9 +90,7 @@ def pack(root, output, sigil, source_commit):
             "manifest_blake3": f"blake3:{local.b3(stage / 'plugin.toml')}",
             "component_blake3": f"blake3:{local.b3(stage / local.COMPONENT)}",
         }
-        with sigil.open("rb") as binary:
-            if hashlib.file_digest(binary, "sha256").hexdigest() != binary_sha:
-                raise ValueError("Sigil binary changed during validation")
+        host_identity.check_digest(sigil, binary_sha)
         if contracts.run("git", "-C", str(root), "rev-parse", "HEAD").strip() != source_commit:
             raise ValueError("checkout changed during validation")
         if contracts.run("git", "-C", str(root), "status", "--porcelain", "--untracked-files=normal").strip():
