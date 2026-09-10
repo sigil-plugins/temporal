@@ -62,7 +62,7 @@ class ContractTests(unittest.TestCase):
         self.assertNotEqual(pack.contracts.world_shape(doc), expected)
 
     def test_local_manifest_version_and_authority_are_closed(self):
-        source = (ROOT / "plugin.toml").read_bytes()
+        source = (ROOT / "plugin.local.toml").read_bytes()
         pack.validate_manifest(source)
         substitutions = [
             (b'0.1.0-dev.1', b'0.1.0'),
@@ -98,7 +98,7 @@ class PackIntegrationTests(unittest.TestCase):
             target = cls.stage / name
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes((ROOT / name).read_bytes())
-        (cls.stage / "plugin.toml").write_bytes((ROOT / "plugin.toml").read_bytes())
+        (cls.stage / "plugin.toml").write_bytes((ROOT / "plugin.local.toml").read_bytes())
         component = cls.stage / pack.COMPONENT
         component.parent.mkdir(parents=True)
         tool = pack.contracts.wasm_tools()

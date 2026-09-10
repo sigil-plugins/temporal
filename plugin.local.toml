@@ -1,8 +1,9 @@
-# Official release candidate; CAPI acceptance remains a separate gate.
+# LOCAL DEVELOPMENT ONLY. Stable Sigil 0.34.0 does not provide Host API 1.3.
+# Use the reviewed source build identified in README, never this version alone.
 schema_version = 4
 name = "temporal"
-version = "0.1.0-rc.1"
-description = "Bounded Temporal WorkflowService client"
+version = "0.1.0-dev.1"
+description = "Non-gating local Temporal component candidate"
 license = "MIT"
 
 [component]
@@ -10,7 +11,7 @@ file = "target/component/temporal.wasm"
 entrypoint = "sigil:temporal/client@0.1.0"
 
 [requires]
-sigil = ">=0.35.0, <0.36.0"
+sigil = "=0.34.0"
 host_api = "=1.3.0"
 
 [capabilities]

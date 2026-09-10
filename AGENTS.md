@@ -18,4 +18,7 @@ Preserve exact payload bytes, numeric/time values, enum numbers and error/effect
 classification. Host infrastructure faults remain sticky in Sigil.
 
 Local checks are not official provenance, a stable Sigil release, or CAPI acceptance.
-Do not weaken requirements or create an installable release without those gates.
+Do not weaken these requirements. An independently approved, officially
+provenanced RC requiring a supporting stable Sigil release may be published to
+enable normal locked CAPI acceptance. Stable Temporal promotion additionally
+requires that CAPI acceptance; the RC and local harness do not substitute for it.

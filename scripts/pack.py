@@ -93,8 +93,8 @@ def b3(path):
 
 
 def pack(manifest_path, output_dir, sigil):
-    if manifest_path.name != "plugin.toml":
-        raise ValueError("input must be named plugin.toml")
+    if manifest_path.name not in ("plugin.toml", "plugin.local.toml"):
+        raise ValueError("input must be named plugin.toml or plugin.local.toml")
     root = manifest_path.parent.resolve()
     contracts.check_sources(root)
     manifest_bytes = ordinary_bytes(manifest_path, MAX_MANIFEST)
