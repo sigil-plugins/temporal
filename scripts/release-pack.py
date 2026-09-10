@@ -25,14 +25,14 @@ IDENTITY_SPEC.loader.exec_module(host_identity)
 def validate_manifest(data):
     parsed = tomllib.loads(data.decode("utf-8"))
     version = parsed.get("version")
-    if not isinstance(version, str) or not re.fullmatch(r"0\.1\.0(?:-rc\.[1-9][0-9]*)?", version):
-        raise ValueError("release version must be 0.1.0 or 0.1.0-rc.N")
-    if parsed.get("requires") != {"sigil": ">=0.35.0, <0.36.0", "host_api": "=1.3.0"}:
-        raise ValueError("release requires supporting stable Sigil 0.35 and Host API 1.3")
+    if not isinstance(version, str) or not re.fullmatch(r"0\.1\.1(?:-rc\.[1-9][0-9]*)?", version):
+        raise ValueError("release version must be 0.1.1 or 0.1.1-rc.N")
+    if parsed.get("requires") != {"sigil": ">=0.35.0", "host_api": "=1.3.0"}:
+        raise ValueError("release requires Sigil >=0.35.0 and exact Host API 1.3.0")
     # Reuse the closed identity/path/capability validator, without granting
     # local manifests any release authority or relaxing their version check.
     normalized = data.replace(f'version = "{version}"'.encode(), b'version = "0.1.0-dev.1"')
-    normalized = normalized.replace(b'sigil = ">=0.35.0, <0.36.0"', b'sigil = "=0.34.0"')
+    normalized = normalized.replace(b'sigil = ">=0.35.0"', b'sigil = "=0.34.0"')
     local.validate_manifest(normalized)
     return parsed
 
@@ -70,7 +70,9 @@ def pack(root, output, sigil, source_commit):
         contracts.check_component(stage / local.COMPONENT, stage)
         host_identity.run_checked(sigil, binary_sha, contracts.run, "plugin", "validate", str(stage / "plugin.toml"))
         tar = local.member("plugin.toml", manifest_bytes) + local.member(local.COMPONENT, component_bytes) + bytes(1024)
-        result = subprocess.run([zstd, "-q", "-10", "--check", "-c"], input=tar,
+        # Match Sigil's single-threaded streaming encoder. CLI default -T1
+        # uses a worker and can emit different bytes for multi-block inputs.
+        result = subprocess.run([zstd, "--single-thread", "-q", "-10", "--check", "-c"], input=tar,
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if result.returncode:
             raise subprocess.CalledProcessError(result.returncode, result.args, stderr=result.stderr)
