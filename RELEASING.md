@@ -49,6 +49,9 @@ publication job or erase a draft/tag/attestation to reuse the identity.
 
 The public RC must be discoverable by exact version, installed from an empty
 cache with official-github-provenance-v1, then added to a project lock and synced.
+Explicit install-first separates acquisition evidence for auditing and retains
+compatibility with older hosts; it is not a limitation of Sigil 0.35.0, whose
+`plugin add` can acquire a missing package through verified remote installation.
 Verify source commit and every lock digest against the approved tuple. Real
 CAPI acceptance uses ordinary `sigil run`, unchanged assertions and exact
 expected-RED fingerprints with pinned service/rig identities. No non-gating

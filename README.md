@@ -138,9 +138,12 @@ without altering protobuf payloads or the interface contract.
    sigil plugin sync
    ```
 
-   `add` grants project access; it does not acquire. No `local:path` source,
-   third-party allowance or `plugin test` may substitute for the official lock
-   and ordinary `sigil run` acceptance path.
+   Sigil 0.35.0's `add` grants project access and can acquire a missing package
+   through the verified remote-install path. Explicit install-first is
+   recommended here to expose acquisition evidence separately and keep the
+   sequence compatible with older hosts. No `local:path` source, third-party
+   allowance or `plugin test` may substitute for the official lock and ordinary
+   `sigil run` acceptance path.
 
 The published RC remains prerelease and is not latest. Only `0.1.0` and
 `0.1.0-rc.N` (positive canonical N) are admitted by this initial pipeline.
