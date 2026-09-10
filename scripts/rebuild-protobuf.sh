@@ -92,11 +92,20 @@ for source in "$STAGE"/responses/source/*.textproto; do
     start-*) kind=StartWorkflowExecutionResponse ;;
     describe-*) kind=DescribeWorkflowExecutionResponse ;;
     history-*) kind=GetWorkflowExecutionHistoryResponse ;;
-    future-fields) continue ;;
+    future-fields|started-false) continue ;;
     *) echo "unknown response fixture $source" >&2; exit 1 ;;
   esac
   encode "$source" "$STAGE/responses/$name.pb" "$kind"
 done
+# Official proto3 encoding erases the distinction between omitted and false.
+cmp "$STAGE/responses/start-omitted.pb" "$STAGE/responses/start-false.pb"
+# A test-only proto2 presence fragment emits the legal explicit-false wire
+# representation; it is not an independent oracle for Temporal field numbers.
+"$PROTOC" --proto_path=conformance/responses/source \
+  --encode=sigil.temporal.conformance.StartedPresence started-presence.proto \
+  < conformance/responses/source/started-false.textproto > "$STAGE/started-false.pb"
+cat "$STAGE/responses/start-omitted.pb" "$STAGE/started-false.pb" \
+  > "$STAGE/responses/start-wire-false.pb"
 # A separately compiled synthetic future field tests protobuf forward
 # compatibility. It does not redefine or copy any official message field tag.
 "$PROTOC" --proto_path=conformance/responses/source \

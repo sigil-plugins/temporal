@@ -1,0 +1,75 @@
+#:schema https://runsigil.com/schemas/sigil-config.schema.json
+# TEMPLATE ONLY. Replace every replace-me value after reviewing your service.
+# No endpoint binding, credential, scenario or lock is supplied. Do not use this
+# as production authority without reviewing the workflow prefix and budgets.
+default_service = "replace-me-service"
+
+[deploy]
+backend = "external"
+
+[plugins.require]
+temporal = "=0.1.0" # Official-source shorthand; the lock records provenance.
+
+[plugins.trust.capability_allowlist]
+grpc-unary = ["github:sigil-plugins/temporal"]
+# Omitted capability allowlists inherit broad official-source defaults.
+network = []
+secrets = []
+random = []
+entropy = []
+log = []
+sigv4 = []
+
+# The outer-call limit must not silently truncate a 65-second close-event call.
+# These are project-wide plugin runtime limits. Review other plugins separately.
+[plugins.runtime]
+max_call_seconds = 70
+max_memory = "256MiB"
+
+# Routing input for the semantic host, NOT raw network authority for the guest.
+[plugins.grants.temporal.network.workflow]
+target = "replace-me-temporal.sql:7233"
+tls = "direct"
+tls_server_name = "replace-me-temporal.example.invalid"
+connect_timeout = "5s"
+io_timeout = "70s"
+max_connections = 1
+# Cumulative bidirectional plaintext HTTP/2 bytes, not a per-RPC allowance.
+max_bytes = "16MiB"
+
+[plugins.grants.temporal.grpc.workflow]
+endpoint = "workflow"
+transport = "h2-tls"
+authority = "replace-me-temporal.example.invalid:7233"
+max_request_bytes = "1MiB"
+max_response_bytes = "4MiB"
+max_call_seconds = 65
+request_metadata = [
+  { name = "temporal-namespace", value = "replace-me-namespace" },
+  { name = "supported-server-versions", value = ">=1.0.0 <2.0.0" },
+  { name = "caller-type", value = "operator" },
+  { name = "client-name", value = "sigil-temporal" },
+  { name = "client-version", value = "0.1.0" },
+]
+response_metadata = []
+
+[plugins.grants.temporal.grpc.workflow.request_policy]
+kind = "temporal-workflow-v0"
+namespace = "replace-me-namespace"
+workflow_id_prefix = "replace-me-run-"
+workflow_type = "ReplaceMeWorkflow"
+task_queue = "replace-me-queue"
+# Fixed plugin identity, NOT a placeholder or the release-candidate version.
+identity = "sigil-temporal@0.1.0"
+
+[plugins.grants.temporal.grpc.workflow.rpcs.start]
+path = "/temporal.api.workflowservice.v1.WorkflowService/StartWorkflowExecution"
+kind = "mutation"
+
+[plugins.grants.temporal.grpc.workflow.rpcs.describe]
+path = "/temporal.api.workflowservice.v1.WorkflowService/DescribeWorkflowExecution"
+kind = "read"
+
+[plugins.grants.temporal.grpc.workflow.rpcs.history]
+path = "/temporal.api.workflowservice.v1.WorkflowService/GetWorkflowExecutionHistory"
+kind = "read"

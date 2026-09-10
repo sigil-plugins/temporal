@@ -55,6 +55,11 @@ The optional project-side polling helper and its caller obligations are in
 
 ## Operator and caller contract
 
+Start with the [complete operator grant template](examples/operator-grant.toml)
+and its [setup and sizing notes](examples/README.md#operator-grant-template).
+The template uses reserved, non-routable placeholders, no credential, and no
+endpoint binding. It is not production authority or an installation command.
+
 The Lua export names are `start-workflow-execution`,
 `describe-workflow-execution`, and `get-workflow-execution-history`. The host
 profile's RPC keys are a **different namespace**: the plugin sends exactly
@@ -97,6 +102,14 @@ that much execution time. Close-event history long-polls; reading a still-runnin
 workflow may reach the deadline. Follow nonempty page tokens explicitly, keep
 Start single-shot with one caller-owned request ID, and propagate infrastructure
 errors rather than converting them into expected product failures.
+
+`payload.data` contains the exact Temporal payload bytes. WIT declares
+`list<u8>`; Sigil exposes that list as a **binary Lua string**, not base64 or an
+already-decoded JSON value. See [payload decoding](examples/README.md#payload-bytes-and-json)
+for metadata checks and an optional, single-layer `sigil.json.decode` example.
+
+For Start responses, read [the `started` and mutation-effect semantics](docs/start-semantics.md)
+before using either field as evidence of a newly created workflow execution.
 
 ## Local packaging (non-gating)
 

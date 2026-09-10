@@ -1,0 +1,13 @@
+// Test-only wire-presence fragment, NOT a replacement Temporal schema.
+// Field identity comes from Temporal API v1.63.5, commit
+// 3ebdff42a9f07ac484b415fe8ff0b483b4ce3340:
+// temporal/api/workflowservice/v1/request_response.proto,
+// StartWorkflowExecutionResponse.started (bool, field 3).
+// Proto2 presence permits protoc to emit an explicit false value that the
+// official implicit-presence proto3 encoder normally omits. The descriptor
+// identity is checked in protoc_start_presence_oracles_preserve_boolean_value.
+syntax = "proto2";
+package sigil.temporal.conformance;
+message StartedPresence {
+  optional bool started = 3;
+}

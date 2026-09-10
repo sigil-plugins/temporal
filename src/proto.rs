@@ -110,6 +110,49 @@ mod tests {
     }
 
     #[test]
+    fn protoc_start_presence_oracles_preserve_boolean_value() {
+        // Bind the synthetic proto2 fragment to the descriptor generated from
+        // the pinned official schema, not to the plugin's request encoder.
+        let started = super::wire::MESSAGE_SCHEMA[super::wire::START_RESPONSE]
+            .fields
+            .iter()
+            .find(|field| field.name == "started")
+            .expect("official started field");
+        assert_eq!(started.number, 3);
+        assert_eq!(started.kind, super::wire::Kind::Varint);
+        assert!(!started.repeated);
+
+        let omitted = include_bytes!("../conformance/responses/start-omitted.pb").as_slice();
+        let source_false = include_bytes!("../conformance/responses/start-false.pb").as_slice();
+        let wire_false = include_bytes!("../conformance/responses/start-wire-false.pb").as_slice();
+        assert_eq!(omitted, source_false, "proto3 omits default false");
+        assert_ne!(omitted, wire_false, "fixture must exercise wire presence");
+        assert_eq!(
+            wire_false.strip_prefix(omitted),
+            Some([0x18, 0x00].as_slice()),
+            "protoc fragment must encode field 3, varint false"
+        );
+        for (bytes, expected) in [
+            (omitted, false),
+            (source_false, false),
+            (wire_false, false),
+            (
+                include_bytes!("../conformance/responses/start-success.pb").as_slice(),
+                true,
+            ),
+        ] {
+            let response = StartWorkflowExecutionResponse::decode(bytes).expect("start oracle");
+            assert_eq!(response.started, expected);
+            assert_eq!(response.status, 1);
+            assert_eq!(response.run_id, "11111111-2222-3333-4444-555555555555");
+            if !expected {
+                // Generated proto3 API does not preserve wire presence.
+                assert_eq!(response.encode_to_vec(), omitted);
+            }
+        }
+    }
+
+    #[test]
     fn protoc_start_and_describe_oracles_preserve_status_numbers() {
         for (bytes, started, status) in [
             (
