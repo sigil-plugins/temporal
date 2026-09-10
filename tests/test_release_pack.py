@@ -63,6 +63,8 @@ class ReleasePackIntegrationTests(unittest.TestCase):
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes((ROOT / name).read_bytes())
         (cls.root / "plugin.toml").write_bytes((ROOT / "plugin.toml").read_bytes())
+        (cls.root / "scripts").mkdir()
+        (cls.root / "scripts/release-tools.json").write_bytes((ROOT / "scripts/release-tools.json").read_bytes())
         (cls.root / ".gitignore").write_text("/target/\n/dist*/\n")
         release.contracts.run("git", "init", "--initial-branch=main", str(cls.root))
         release.contracts.run("git", "-C", str(cls.root), "add", ".")
@@ -93,8 +95,10 @@ class ReleasePackIntegrationTests(unittest.TestCase):
         self.assertEqual(value["package_sha256"], "sha256:" + hashlib.sha256(first.read_bytes()).hexdigest())
         self.assertEqual(raw, json.dumps(value, sort_keys=True, separators=(",", ":")).encode("ascii"))
         self.assertEqual({p.name for p in first.parent.iterdir()}, {first.name, "SHA256SUMS", "release-manifest.json"})
-        release.contracts.run(str(self.sigil), "plugin", "pack", str(self.root / "plugin.toml"),
-                              "--output-dir", str(self.root / "dist-canonical"))
+        _, expected = release.host_identity.load_spec(self.root)
+        release.host_identity.run_checked(self.sigil.resolve(), expected, release.contracts.run,
+                                          "plugin", "pack", str(self.root / "plugin.toml"),
+                                          "--output-dir", str(self.root / "dist-canonical"))
         self.assertEqual(first.read_bytes(), (self.root / "dist-canonical" / first.name).read_bytes())
         with self.assertRaises(FileExistsError):
             release.pack(self.root, first.parent, self.sigil, self.commit)

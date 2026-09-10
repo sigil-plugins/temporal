@@ -7,9 +7,14 @@ dispatch and external acceptance; workers do not publish.
 ## Before the candidate build
 
 - Source and whole feature range independently reviewed, no open blockers.
-- Public supporting Sigil 0.35.0 exists, with exact archive checksum pinned in
-  `scripts/release-tools.json`. A local binary with that version text does not
-  establish public release identity.
+- Public supporting Sigil 0.35.0 exists, with independently measured archive and
+  extracted executable checksums pinned in `scripts/release-tools.json`. A local
+  binary with that version text does not establish public release identity.
+  Acquisition checks the executable pin before exposing it, and release
+  validators check the same immutable expected digest before and after every
+  invocation. Do not derive the expected digest from whichever binary happens
+  to be at the path after builds. This is checked executable identity, not an
+  isolation claim against arbitrary concurrent same-user compromise.
 - GitHub immutable releases enabled and owner-enforced; protected main and
   release environment restricted to main. Read controls back through the admin
   API; retain response identity/time with the approval evidence.

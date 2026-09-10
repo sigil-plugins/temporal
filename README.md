@@ -114,10 +114,15 @@ without altering protobuf payloads or the interface contract.
 1. Configure the public repository's protected `main`, main-only `release`
    environment, immutable releases and owner enforcement. These are external
    controls, not established by merely committing these workflow files.
-2. Release Sigil 0.35.0 with public Linux assets. Pin the archive SHA-256 in
-   `scripts/release-tools.json`; its explicit unfilled value fails closed.
+2. Release Sigil 0.35.0 with public Linux assets. Independently measure and pin
+   both the archive and extracted executable SHA-256 values in
+   `scripts/release-tools.json`; either unfilled value fails closed.
    Acquisition uses only that public version and hash, no private Sigil checkout,
    token, floating latest installer or source-built version impersonation.
+   Acquisition checks the executable pin before exposing it; every release
+   validator invocation checks that pin immediately before and after execution.
+   These checks preserve executable identity at invocation boundaries, not
+   isolation against arbitrary concurrent same-user compromise.
 3. Dispatch `prepare-release` once on the reviewed main commit. It installs
    pinned build tools, fetches locked dependencies, runs checks and actual
    component conformance, then validates the release package with Sigil 0.35.0.

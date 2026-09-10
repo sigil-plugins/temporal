@@ -14,6 +14,9 @@ ROOT = Path(__file__).resolve().parent.parent
 SPEC = importlib.util.spec_from_file_location("acquire_release", ROOT / "scripts/acquire-release-sigil.py")
 acquisition = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(acquisition)
+PACK_SPEC = importlib.util.spec_from_file_location("release_pack", ROOT / "scripts/release-pack.py")
+release = importlib.util.module_from_spec(PACK_SPEC)
+PACK_SPEC.loader.exec_module(release)
 
 
 class AcquisitionTests(unittest.TestCase):
@@ -31,6 +34,7 @@ class AcquisitionTests(unittest.TestCase):
             "sigil_version": "0.35.0",
             "sigil_archive": "sigil-x86_64-unknown-linux-gnu.tar.xz",
             "sigil_archive_sha256": hashlib.sha256(self.archive).hexdigest(),
+            "sigil_binary_sha256": hashlib.sha256(self.binary).hexdigest(),
         }
         (self.root / "scripts").mkdir()
         self.write_spec()
@@ -79,9 +83,44 @@ class AcquisitionTests(unittest.TestCase):
             acquisition.acquire(self.root)
         self.assertFalse((self.root / "target").exists())
 
+    def test_wrong_extracted_executable_digest_stops_before_execution(self):
+        self.spec["sigil_binary_sha256"] = "0" * 64
+        self.write_spec()
+        with patch.object(acquisition.urllib.request, "urlopen", return_value=io.BytesIO(self.archive)), \
+                patch.object(acquisition.subprocess, "check_output") as execute, self.assertRaises(ValueError):
+            acquisition.acquire(self.root)
+        execute.assert_not_called()
+        self.assertFalse((self.root / "target").exists())
+
+    def test_changed_destination_between_acquisition_and_pack_is_never_invoked(self):
+        with patch.object(acquisition.urllib.request, "urlopen", return_value=io.BytesIO(self.archive)), \
+                patch.object(acquisition.subprocess, "check_output", return_value="sigil 0.35.0\n"):
+            result = acquisition.acquire(self.root)
+        destination = Path(result["binary_path"])
+        # This is harmless text, not an executable program or exploit fixture.
+        destination.write_bytes(b"ordinary different bytes between two phases\n")
+        for name in release.contracts.INPUTS:
+            path = self.root / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes((ROOT / name).read_bytes())
+        (self.root / "plugin.toml").write_bytes((ROOT / "plugin.toml").read_bytes())
+        component = self.root / release.local.COMPONENT
+        component.parent.mkdir(parents=True)
+        component.write_bytes(b"ordinary placeholder, no component validation should occur\n")
+        commit = "3" * 40
+
+        def only_git(*args):
+            if args[:3] == ("git", "-C", str(self.root)):
+                return commit if args[3:] == ("rev-parse", "HEAD") else ""
+            self.fail(f"identity mismatch reached a tool invocation: {args}")
+
+        with patch.object(release.contracts, "run", side_effect=only_git), self.assertRaises(ValueError):
+            release.pack(self.root, self.root / "dist", destination, commit)
+        self.assertFalse((self.root / "dist").exists())
+
     def test_release_tool_spec_is_closed(self):
         for key, value in (("sigil_version", "latest"), ("sigil_archive", "other.tar.xz"),
-                           ("sigil_archive_sha256", "ABCDEF"), ("extra", True)):
+                           ("sigil_archive_sha256", "ABCDEF"), ("sigil_binary_sha256", "UNPINNED"), ("extra", True)):
             with self.subTest(key=key), self.assertRaises(ValueError):
                 acquisition.validate_spec({**self.spec, key: value})
 
