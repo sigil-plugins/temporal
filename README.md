@@ -3,7 +3,8 @@
 The measured three-operation `wasm.temporal` component:
 start, describe and caller-paginated history.
 
-This checkout prepares **0.1.1 (unreleased)**, requiring **Sigil >=0.35.0**
+This checkout prepares **0.1.1-rc.1 (unpublished release candidate)**,
+requiring **Sigil >=0.35.0**
 and exact Host API 1.3.0/schema 4. Published **0.1.0** still requires **Sigil
 0.35.x**; its immutable manifest is not changed by this preparation. A version
 in this checkout is not evidence that its GitHub release exists. The official
@@ -35,6 +36,13 @@ provenance-bearing artifacts and an actually supporting stable Sigil release.
 Stable Temporal promotion additionally requires real CAPI replacement acceptance.
 Existing CAPI assertions, exact expected-RED fingerprints and non-Temporal pins
 must not change to obtain a pass.
+
+This RC is scheduled after supporting **Sigil 0.35.1** publication. The release
+pipeline still validates against pinned public **0.35.0**, the minimum host;
+that check does not substitute for fresh official-lock CAPI acceptance of this
+RC on 0.35.1. It adds documented operator grants and Start semantics, the
+opt-in [bounded Lua companion](examples/README.md#bounded-lua-companion), and
+minimum-only host compatibility without new component exports.
 
 ## Implementation and checks
 
