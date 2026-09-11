@@ -4,9 +4,9 @@ The authority is Sigil's P6 keyless provenance policy and its 2026-08-27
 autonomous-publication amendment. The lead owns repository controls, release
 dispatch and external acceptance; workers do not publish.
 
-## Unpublished 0.1.1 preparation
+## Unpublished 0.1.1-rc.1 preparation
 
-The manifest and runtime crate now prepare **0.1.1**, not a published release.
+The manifest and runtime crate now prepare **0.1.1-rc.1**, not a published release.
 Only `0.1.1` and canonical positive `0.1.1-rc.N` package versions are admitted
 by this checkout's packer and publisher. Historical 0.1.0 releases are never
 rebuilt under their old identities. Confirm the new version is unused before
@@ -26,6 +26,15 @@ for official 0.1.1 packages. No local package acquires publication authority.
 
 All following independent review, provenance, immutability and acquisition
 gates remain required. Preparing this source does not authorize dispatch.
+
+For this RC, publish supporting Sigil **0.35.1** before the official Temporal
+publication and measure that host separately during fresh CAPI acceptance.
+Keep the public **0.35.0** minimum validator and its hashes pinned; do not
+change the manifest floor merely to express this release order. Prior 0.1.0
+CAPI acceptance and local 0.1.1 qualification do not certify this RC's new
+source, component or package identity. The Lua companion is project-side
+source copied explicitly by callers, not an added file inside the two-member
+plugin archive; CAPI must record the helper source revision when adopting it.
 
 The 0.1.1 release packer also selects zstd `--single-thread` explicitly.
 Sigil's writer uses a single-threaded streaming encoder; the CLI's default

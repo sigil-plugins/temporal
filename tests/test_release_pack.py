@@ -20,9 +20,9 @@ SPEC.loader.exec_module(release)
 class ReleaseContractTests(unittest.TestCase):
     def test_release_manifest_keeps_local_and_official_versions_separate(self):
         data = (ROOT / "plugin.toml").read_bytes()
-        self.assertEqual(release.validate_manifest(data)["version"], "0.1.1")
-        version_line = b'version = "0.1.1"'
-        release.validate_manifest(data.replace(version_line, b'version = "0.1.1-rc.1"'))
+        self.assertEqual(release.validate_manifest(data)["version"], "0.1.1-rc.1")
+        version_line = b'version = "0.1.1-rc.1"'
+        release.validate_manifest(data.replace(version_line, b'version = "0.1.1"'))
         for version in (b"0.1.0", b"0.1.0-rc.1", b"0.1.0-dev.1", b"0.1.1-dev.1",
                         b"0.1.1-rc.0", b"0.1.1-rc.01", b"0.1.1+build", b"0.1.2", b"0.2.0"):
             with self.subTest(version=version), self.assertRaises(ValueError):
@@ -76,7 +76,7 @@ class ReleaseContractTests(unittest.TestCase):
                 admitted = subprocess.run(["bash", "-c", rules[0]],
                                           env={**os.environ, "VERSION": version},
                                           capture_output=True, timeout=5).returncode == 0
-                candidate = data.replace(b'version = "0.1.1"',
+                candidate = data.replace(b'version = "0.1.1-rc.1"',
                                          f'version = "{version}"'.encode())
                 if version in ("0.1.1", "0.1.1-rc.1", "0.1.1-rc.23"):
                     self.assertTrue(admitted)
