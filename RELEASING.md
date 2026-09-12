@@ -4,9 +4,12 @@ The authority is Sigil's P6 keyless provenance policy and its 2026-08-27
 autonomous-publication amendment. The lead owns repository controls, release
 dispatch and external acceptance; workers do not publish.
 
-## Unpublished 0.1.1-rc.1 preparation
+## Unpublished 0.1.1 stable preparation
 
-The manifest and runtime crate now prepare **0.1.1-rc.1**, not a published release.
+The plugin manifest prepares **0.1.1**, not a published release. The
+`publish = false` runtime crate and Cargo.lock remain at the accepted
+**0.1.1-rc.1**: this is plugin-package promotion, not a Rust crate release.
+Package/crate independence also preserved the component in the 0.1.0 promotion.
 Only `0.1.1` and canonical positive `0.1.1-rc.N` package versions are admitted
 by this checkout's packer and publisher. Historical 0.1.0 releases are never
 rebuilt under their old identities. Confirm the new version is unused before
@@ -27,12 +30,25 @@ for official 0.1.1 packages. No local package acquires publication authority.
 All following independent review, provenance, immutability and acquisition
 gates remain required. Preparing this source does not authorize dispatch.
 
-For this RC, publish supporting Sigil **0.35.1** before the official Temporal
-publication and measure that host separately during fresh CAPI acceptance.
-Keep the public **0.35.0** minimum validator and its hashes pinned; do not
-change the manifest floor merely to express this release order. Prior 0.1.0
-CAPI acceptance and local 0.1.1 qualification do not certify this RC's new
-source, component or package identity. The Lua companion is project-side
+The official locked **0.1.1-rc.1** and exact companion from source
+`103aed13cdc16f2d5e691ea16244e2d8f3560f4a` passed CAPI acceptance on
+**2026-09-11**, using Sigil **0.35.1**: five profiles, ten scenarios, 319
+unchanged assertions and both frozen expected-RED fingerprints. Its
+**2026-09-12** addendum closed diagnostic evidence without a full-suite rerun.
+The caller is independently reviewed but deliberately held for stable under
+CAPI's merge policy. That does not imply a missing RC service-acceptance gate
+or an already-merged caller.
+
+Stable candidate and public readback MUST retain component BLAKE3
+`b427ab70cb4643c771996a3610456872e4ed50e49f24fe8859186a654833a7b8`.
+Any different component stops this promotion; investigate and seek a new
+review/acceptance decision, never relabel old evidence. Keep the accepted
+runtime, helper, WIT, dependency locks and build settings unchanged and measure
+the actual build. The stable manifest/package and source-bound sidecar acquire
+new identities and still require exact-candidate review and public verification.
+
+Keep the public **0.35.0** minimum validator and its hashes pinned; the measured
+0.35.1 host does not change the manifest floor. The Lua companion is project-side
 source copied explicitly by callers, not an added file inside the two-member
 plugin archive; CAPI must record the helper source revision when adopting it.
 

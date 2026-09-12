@@ -20,9 +20,9 @@ SPEC.loader.exec_module(release)
 class ReleaseContractTests(unittest.TestCase):
     def test_release_manifest_keeps_local_and_official_versions_separate(self):
         data = (ROOT / "plugin.toml").read_bytes()
-        self.assertEqual(release.validate_manifest(data)["version"], "0.1.1-rc.1")
-        version_line = b'version = "0.1.1-rc.1"'
-        release.validate_manifest(data.replace(version_line, b'version = "0.1.1"'))
+        self.assertEqual(release.validate_manifest(data)["version"], "0.1.1")
+        version_line = b'version = "0.1.1"'
+        release.validate_manifest(data.replace(version_line, b'version = "0.1.1-rc.1"'))
         for version in (b"0.1.0", b"0.1.0-rc.1", b"0.1.0-dev.1", b"0.1.1-dev.1",
                         b"0.1.1-rc.0", b"0.1.1-rc.01", b"0.1.1+build", b"0.1.2", b"0.2.0"):
             with self.subTest(version=version), self.assertRaises(ValueError):
@@ -76,7 +76,7 @@ class ReleaseContractTests(unittest.TestCase):
                 admitted = subprocess.run(["bash", "-c", rules[0]],
                                           env={**os.environ, "VERSION": version},
                                           capture_output=True, timeout=5).returncode == 0
-                candidate = data.replace(b'version = "0.1.1-rc.1"',
+                candidate = data.replace(b'version = "0.1.1"',
                                          f'version = "{version}"'.encode())
                 if version in ("0.1.1", "0.1.1-rc.1", "0.1.1-rc.23"):
                     self.assertTrue(admitted)
@@ -89,7 +89,10 @@ class ReleaseContractTests(unittest.TestCase):
     def test_package_patch_keeps_the_frozen_client_and_minimum_validator(self):
         manifest = release.validate_manifest((ROOT / "plugin.toml").read_bytes())
         crate = release.tomllib.loads((ROOT / "Cargo.toml").read_text())
-        self.assertEqual(crate["package"]["version"], manifest["version"])
+        # Stable plugin packaging is not a Rust crate release. Preserve the
+        # accepted, unpublished runtime crate and measure its component bytes.
+        self.assertEqual(crate["package"]["version"], "0.1.1-rc.1")
+        self.assertFalse(crate["package"]["publish"])
         contract = json.loads((ROOT / "conformance/contract.json").read_text())
         self.assertEqual(manifest["component"]["entrypoint"], contract["identity"]["entrypoint"])
         self.assertEqual(manifest["schema_version"], contract["identity"]["manifest_schema"])
