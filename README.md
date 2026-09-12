@@ -3,16 +3,17 @@
 The measured three-operation `wasm.temporal` component:
 start, describe and caller-paginated history.
 
-This checkout prepares **0.1.1-rc.1 (unpublished release candidate)**,
+This checkout prepares **0.1.1 (unpublished stable candidate)**,
 requiring **Sigil >=0.35.0**
 and exact Host API 1.3.0/schema 4. Published **0.1.0** still requires **Sigil
 0.35.x**; its immutable manifest is not changed by this preparation. A version
 in this checkout is not evidence that its GitHub release exists. The official
-locked **0.1.0-rc.1** passed CAPI caller-replacement
-acceptance on **2026-09-10**: five profiles, ten scenarios, 319 unchanged
-assertions and both exact expected-RED fingerprints. Its 0.1.0 stable promotion
-preserved the component bytes but created a new manifest/package identity
-requiring its own reviewed publication and verification. Routing, authority, TLS policy,
+locked **0.1.1-rc.1** and byte-unchanged Lua companion passed CAPI acceptance
+on **2026-09-11**: five profiles, ten scenarios, 319 unchanged assertions and
+both exact expected-RED fingerprints. The **2026-09-12** addendum closed
+diagnostic evidence without rerunning the suite. The caller is independently
+reviewed but awaits stable under CAPI's stable-only merge policy; no caller
+merge or stable publication is claimed here. Routing, authority, TLS policy,
 credentials and transport limits belong
 to the operator-frozen Sigil host profile. The component receives none of them.
 It performs no retries, redirects, reconnections, sleeps or implicit pagination.
@@ -22,8 +23,8 @@ coupling, not host compatibility checks. Future stable versions must still
 support the exact schema and host interface. An admissible version range is
 not evidence that an unmeasured future host passed native or CAPI acceptance.
 Prerelease evaluators retain Sigil's checked last-stable compatibility rules;
-they do not impersonate their own final versions. Install examples below stay
-on published 0.1.0 until a new package is officially published and verified.
+they do not impersonate their own final versions. The 0.1.1 install examples
+below require that exact stable package to be officially published and verified.
 
 The application WIT and machine contract are copied without semantic change from
 reviewed Sigil source `7403a479a36dc7a2fadf38c47578d64ba37ed679`.
@@ -37,10 +38,13 @@ Stable Temporal promotion additionally requires real CAPI replacement acceptance
 Existing CAPI assertions, exact expected-RED fingerprints and non-Temporal pins
 must not change to obtain a pass.
 
-This RC is scheduled after supporting **Sigil 0.35.1** publication. The release
-pipeline still validates against pinned public **0.35.0**, the minimum host;
-that check does not substitute for fresh official-lock CAPI acceptance of this
-RC on 0.35.1. It adds documented operator grants and Start semantics, the
+The RC was accepted on supporting **Sigil 0.35.1**. The release pipeline still
+validates against pinned public **0.35.0**, the minimum host. Stable packaging
+retains the accepted unpublished runtime crate at **0.1.1-rc.1**; package and
+crate versions are distinct, as in the prior 0.1.0 promotion. The candidate
+must reproduce the exact accepted component identity before publication; a
+stable manifest still creates a new package identity requiring its own
+review and verification. The RC added operator grants and Start semantics, the
 opt-in [bounded Lua companion](examples/README.md#bounded-lua-companion), and
 minimum-only host compatibility without new component exports.
 
@@ -220,8 +224,8 @@ without altering protobuf payloads or the interface contract.
 
    ```sh
    sigil plugin sync
-   sigil plugin install temporal@0.1.0
-   sigil plugin add temporal@0.1.0
+   sigil plugin install temporal@0.1.1
+   sigil plugin add temporal@0.1.1
    sigil plugin sync
    ```
 

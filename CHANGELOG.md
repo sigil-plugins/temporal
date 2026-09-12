@@ -1,6 +1,22 @@
 # Changelog
 
-## 0.1.1-rc.1 — Unpublished release candidate
+## 0.1.1 — Unpublished stable candidate
+
+- Prepare stable packaging of the accepted 0.1.1-rc.1 component and unchanged
+  project-side Lua companion; no runtime, helper, WIT or dependency changes.
+  Keep the unpublished runtime crate at 0.1.1-rc.1 to preserve accepted bytes.
+- The official RC and exact companion passed CAPI acceptance on 2026-09-11:
+  five profiles, ten scenarios, 319 unchanged assertions and both frozen
+  expected-RED fingerprints. The 2026-09-12 addendum closed diagnostic evidence
+  without a full-suite rerun; the reviewed caller awaits stable under CAPI's
+  stable-only merge policy. Stable publication and artifact verification are
+  separate gates, not claims made by this source preparation.
+- Retain Sigil >=0.35.0, exact Host API 1.3.0, schema 4 and fixed WIT/caller
+  identity 0.1.0. Continue validating against the pinned public minimum host.
+- Correct the timeout wording below: only close-event History permits 65
+  seconds; Start, Describe and all-events History cap at 10 seconds.
+
+## 0.1.1-rc.1 — release candidate
 
 - Require Sigil >=0.35.0 without an evaluator minor ceiling, while retaining
   exact Host API 1.3.0, schema 4 and the unchanged three-operation WIT 0.1.0.
@@ -23,10 +39,11 @@
   Include independent presence fixtures and regression coverage.
 - Provide a tested least-authority operator grant template with all three
   fixed aliases, explicit capabilities and the cumulative budget needed for
-  a 65-second Start; explain binary payload handling and JSON numeric limits.
-- Schedule RC publication after supporting Sigil 0.35.1. Fresh official-lock
-  CAPI acceptance of this exact RC and any adopted helper source remains
-  required before a separately reviewed stable promotion.
+  65-second close-event History; explain binary payload handling and JSON
+  numeric limits. Start, Describe and all-events History cap at 10 seconds.
+- Published after supporting Sigil 0.35.1. Subsequent official-lock RC and
+  companion acceptance is recorded above; stable promotion remains a separate
+  reviewed candidate and immutable publication.
 
 ## 0.1.0 — stable
 
